@@ -45,6 +45,10 @@ body {
     }
 }
 
+/* Active tab styles */
+.active-tab {
+    @apply border-b-2 border-pink-500 text-pink-600 font-bold;
+}
 
 /* Floating Notification Layer Styles */
 .notification-overlay {
