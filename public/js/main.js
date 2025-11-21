@@ -1472,7 +1472,7 @@ function updateCartUIWithLucky() {
 
     if (hasLuckyProductInCart() && activeLuckyProduct) {
         // إظهار بنر منتج الحظ
-        if (!luckyBanner) {
+        if (!luckyBanner && cartFooter && summary) {
             const banner = document.createElement('div');
             banner.id = 'lucky-product-banner';
             banner.className = 'mb-3 p-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-xl text-center animate-pulse';
@@ -1481,6 +1481,9 @@ function updateCartUIWithLucky() {
                 <strong>مبروك!</strong> حصلت على خصم ${activeLuckyProduct.discount_percent}% لأنك أضفت أحد منتجات الحظ!
             `;
             cartFooter.insertBefore(banner, summary);
+        } else if (!cartFooter || !summary) {
+            // If the required elements don't exist, just return to avoid the error
+            return;
         }
         // تطبيق خصم منتج الحظ
         applyLuckyDiscount();
