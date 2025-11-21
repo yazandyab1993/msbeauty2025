@@ -1,12 +1,9 @@
-```
+```gitignore
 # Compiled and build artifacts
 *.pyc
 __pycache__/
 *.o
 *.obj
-dist/
-build/
-target/
 *.class
 *.exe
 *.dll
@@ -20,15 +17,13 @@ venv/
 .venv/
 .env
 .env.local
-.env.*
+*.env.*
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
 *.swo
-*.bak
-*.cache
 
 # Editors
 .vscode/
@@ -39,64 +34,31 @@ venv/
 # System files
 .DS_Store
 Thumbs.db
-.DS_Store?
-ehthumbs.db
-Icon?
-*.nib
-*.lproj/
-*.pyo
-*.pyd
-*.pyc
-*.pyo
-*.db
-*.db-journal
-*.tmp
-*.temp
-*.log
-*.out
-*.pid
-*.seed
-*.prof
-*.pid
-*.log
-*.tmp
-*.temp
-*.cache
-*.swp
-*.swo
-*.bak
-*.old
-*.orig
-*.rej
-*.patch
-*.diff
-*.patch
-*.diff
-*.dump
-*.dump
-*.core
-*.core
-*.stackdump
-*.stackdump
-*.ilk
-*.ilk
-*.pdb
-*.pdb
-*.dll
-*.so
-*.dylib
-*.class
-*.jar
-*.war
-*.ear
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Build directories
+dist/
+build/
+target/
+.gradle/
+
+# Python specific
+.mypy_cache/
+.pytest_cache/
+
+# Compressed files
 *.zip
-*.rar
 *.gz
 *.tar
 *.tgz
 *.bz2
 *.xz
 *.7z
+*.rar
 *.zst
 *.lz4
 *.lzh
