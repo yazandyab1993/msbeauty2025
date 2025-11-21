@@ -1455,26 +1455,10 @@ function updateCartUIWithLucky() {
 
 // تطبيق الخصم
 function applyLuckyDiscount() {
-    const subtotalBeforeDiscount = parseFloat(document.getElementById('cart-subtotal-before-discount').textContent.replace('$', ''));
-    const regularDiscount = parseFloat(document.getElementById('cart-discount').textContent.replace('$', ''));
-    const deliveryFee = parseFloat(document.getElementById('cart-delivery-fee').textContent.replace('$', ''));
-    
-    const subtotalAfterRegularDiscount = subtotalBeforeDiscount - regularDiscount;
-    const luckyDiscountAmount = subtotalAfterRegularDiscount * (activeLuckyProduct.discount_percent / 100);
-    const totalAfterLucky = subtotalAfterRegularDiscount - luckyDiscountAmount + deliveryFee;
-
-    // عرض خصم منتج الحظ
-    let luckyDiscountEl = document.getElementById('lucky-discount-row');
-    if (!luckyDiscountEl) {
-        luckyDiscountEl = document.createElement('div');
-        luckyDiscountEl.id = 'lucky-discount-row';
-        luckyDiscountEl.className = 'flex justify-between text-green-600 font-bold';
-        document.getElementById('cart-summary').insertBefore(luckyDiscountEl, document.getElementById('cart-delivery-fee').parentElement);
-    }
-    luckyDiscountEl.innerHTML = `<span>خصم منتج الحظ (${activeLuckyProduct.discount_percent}%)</span><span>-$${luckyDiscountAmount.toFixed(2)}</span>`;
-
-    // تحديث الإجمالي
-    document.getElementById('cart-total').textContent = `$${totalAfterLucky.toFixed(2)}`;
+    // لا نحتاج لتحديث الإجمالي هنا لأن calculateCartTotals() يقوم بذلك بالفعل
+    // فقط نتأكد من أن عرض خصم منتج الحظ موجود
+    // يتم استدعاء هذه الدالة من updateCartUIWithLucky التي تُشغل updateCartUI
+    // مما يؤدي إلى استدعاء calculateCartTotals() التي تقوم بالحساب الصحيح
 }
 
 // إزالة الخصم
