@@ -436,6 +436,9 @@ function isProductEligibleForDiscount(product) {
 
     // تحديث ملخص السلة
     calculateCartTotals();
+    
+    // Update cart items count display
+    updateCartItemsCount();
 }
 
 
@@ -943,6 +946,40 @@ const subtotalAfterCoupon = subtotalAfterStoreDiscount - couponDiscountAmount;
             closeCart();
         }
 
+        // Tab switching functionality for cart modal
+        function switchCartTab(tabName) {
+            // Update active tab button
+            document.getElementById('products-tab').classList.remove('active-tab', 'border-pink-500', 'text-pink-600');
+            document.getElementById('info-tab').classList.remove('active-tab', 'border-pink-500', 'text-pink-600');
+            
+            if (tabName === 'products') {
+                document.getElementById('products-tab').classList.add('active-tab', 'border-pink-500', 'text-pink-600');
+                document.getElementById('products-tab-content').classList.remove('hidden');
+                document.getElementById('info-tab-content').classList.add('hidden');
+            } else if (tabName === 'info') {
+                document.getElementById('info-tab').classList.add('active-tab', 'border-pink-500', 'text-pink-600');
+                document.getElementById('info-tab-content').classList.remove('hidden');
+                document.getElementById('products-tab-content').classList.add('hidden');
+            }
+        }
+
+        // Update cart items count display
+        function updateCartItemsCount() {
+            const items = Object.entries(cart).map(([key, item]) => ({ key, ...item }));
+            const count = items.reduce((sum, item) => sum + item.quantity, 0);
+            const countElement = document.getElementById('cart-items-count');
+            if (countElement) {
+                countElement.textContent = count;
+            }
+            
+            // Update total amount display
+            const totalElement = document.getElementById('cart-total');
+            const totalDisplayElement = document.getElementById('cart-total-amount-display');
+            if (totalElement && totalDisplayElement) {
+                totalDisplayElement.textContent = totalElement.textContent;
+            }
+        }
+
         function openCart() {
             const modal = document.getElementById('cart-modal');
             const content = document.getElementById('cart-modal-content');
@@ -952,6 +989,8 @@ const subtotalAfterCoupon = subtotalAfterStoreDiscount - couponDiscountAmount;
             setTimeout(() => {
                 content.classList.remove('scale-95', 'opacity-0');
                 content.classList.add('scale-100', 'opacity-100');
+                // Switch to products tab when opening the cart
+                switchCartTab('products');
             }, 10);
         }
 
