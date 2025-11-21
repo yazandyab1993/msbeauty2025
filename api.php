@@ -377,6 +377,10 @@ case 'validate_coupon':
             // 3. إجراء الحسابات المالية (Waterfall Model) - مطابق لـ JS
             // =========================================================
             
+            // تحديد العملة من البيانات المرسلة (USD أو SYP)
+            $order_currency = isset($data['currency']) ? $data['currency'] : 'USD';
+            $exchange_rate = floatval($settings['usd_exchange_rate'] ?? 15000);
+            
             // المرحلة 1: المجموع الكلي
         $gross_total = 0;
         $discountable_total = 0; 
@@ -389,6 +393,11 @@ case 'validate_coupon':
             if ($variant_id !== null && isset($db_variants[$variant_id])) {
                 $v_price = $db_variants[$variant_id]['price_override'];
                 $unit_price = ($v_price !== null) ? floatval($v_price) : $unit_price;
+            }
+            
+            // تحويل السعر إلى العملة المطلوبة عند إتمام الطلب
+            if ($order_currency === 'SYP') {
+                $unit_price = $unit_price * $exchange_rate; // تحويل الدولار إلى ليرة
             }
 
             $line_total = $unit_price * intval($item['quantity']);
@@ -451,9 +460,14 @@ case 'validate_coupon':
         $delivery_fee_type = $settings['delivery_fee_type'] ?? 'fixed';
         $delivery_fee_val = floatval($settings['delivery_fee_value'] ?? 0);
         
+        // تحويل رسوم التوصيل إلى العملة المطلوبة
         $delivery_fee = ($delivery_fee_type == 'percentage') 
             ? $net_goods_total * ($delivery_fee_val / 100) 
             : $delivery_fee_val;
+            
+        if ($order_currency === 'SYP' && $delivery_fee_type !== 'percentage') {
+            $delivery_fee = $delivery_fee * $exchange_rate; // تحويل التوصيل إلى ليرة إذا لم يكن نسبي
+        }
 
         // المرحلة 7: الإجمالي النهائي
         $total_amount = $net_goods_total + $delivery_fee;
@@ -562,17 +576,17 @@ case 'validate_coupon':
                     contains_lucky_product, lucky_product_id, lucky_discount_percent, lucky_discount_amount,
                     coupon_code, coupon_discount_amount, 
                     reward_discount_amount, reward_message, 
-                    is_new, exchange_rate
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+                    is_new, exchange_rate, currency
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
             ");
             
-            $ord_stmt->bind_param("isssdddiiidsddsd", 
+            $ord_stmt->bind_param("isssdddiiidsddsss", 
                 $customer_id, $customer_name, $customer_phone, $customer_location,
                 $total_amount, $discount_value, $delivery_fee,
                 $contains_lucky, $lucky_product_id, $lucky_discount_percent, $lucky_discount_amount,
                 $coupon_code, $coupon_discount_amount,
                 $reward_discount_amount, $reward_message,
-                $exchange_rate
+                $exchange_rate, $order_currency
             );
             
             $ord_stmt->execute();
@@ -592,6 +606,11 @@ case 'validate_coupon':
                     $base_price = ($ovr !== null) ? floatval($ovr) : $base_price;
                 }
                 
+                // تحويل السعر إلى العملة المطلوبة
+                if ($order_currency === 'SYP') {
+                    $base_price = $base_price * $exchange_rate; // تحويل الدولار إلى ليرة
+                }
+
                 $final_item_price = $base_price;
                 if (in_array($item['id'], $eligible_product_ids)) {
                     $final_item_price = $base_price * (1 - $discount_value / 100);

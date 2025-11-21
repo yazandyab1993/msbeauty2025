@@ -183,7 +183,13 @@
                                             <?php if (isset($item['is_gift']) && $item['is_gift'] == 1): ?>
                                                 <span class="font-bold text-green-600">مجاني</span>
                                             <?php else: ?>
-                                                <span class="font-bold text-pink-600">$<?= htmlspecialchars(number_format($item['price'] * $item['quantity'], 2)) ?></span>
+                                                <span class="font-bold text-pink-600">
+                                                    <?php if ($order['currency'] === 'SYP'): ?>
+                                                        <?= htmlspecialchars(number_format($item['price'] * $item['quantity'], 2)) ?> ل.س
+                                                    <?php else: ?>
+                                                        $<?= htmlspecialchars(number_format($item['price'] * $item['quantity'], 2)) ?>
+                                                    <?php endif; ?>
+                                                </span>
                                             <?php endif; ?>
                                         </div>
                                     </div>

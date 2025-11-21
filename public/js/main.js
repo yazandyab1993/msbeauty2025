@@ -861,6 +861,7 @@ const subtotalAfterCoupon = subtotalAfterStoreDiscount - couponDiscountAmount;
                 customer_name: document.getElementById('customer-name').value.trim(),
                 customer_phone: document.getElementById('customer-phone').value.trim(),
                 customer_location: document.getElementById('customer-location').value.trim(),
+                currency: currentCurrency, // إضافة العملة المحددة
                 items: Object.values(cart).map(item => ({
                     id: item.id,
                     variant_id: item.variant_id || null,
