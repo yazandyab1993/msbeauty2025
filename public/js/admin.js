@@ -3926,7 +3926,8 @@ function updateInvoiceItemsPrices() {
     
     // تحديث أسعار العناصر المعروضة
     invoiceItems = invoiceItems.map(item => {
-        // نحتفظ بالسعر الأصلي بالدولار
+        // نحتفظ بالسعر الأصلي بالدولار إذا لم يكن موجوداً
+        if (!item.original_cost_price) {
             item.original_cost_price = item.cost_price; // السعر الأصلي بالدولار
         }
         
