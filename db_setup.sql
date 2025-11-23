@@ -297,6 +297,8 @@ CREATE TABLE `purchase_invoices` (
   `invoice_date` date NOT NULL,
   `notes` text DEFAULT NULL,
   `total_cost` decimal(10,2) DEFAULT 0.00,
+  `currency` varchar(3) DEFAULT 'USD',
+  `exchange_rate` decimal(15,6) DEFAULT 1.000000,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

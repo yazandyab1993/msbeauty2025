@@ -3880,9 +3880,69 @@ document.getElementById('reserved-products-modal')?.addEventListener('click', (e
 
 // تحديث رمز العملة في واجهة الفاتورة
 function updateInvoiceCurrencyDisplay() {
-    const currency = document.getElementById('invoice-currency').value;
-    const symbol = currency === 'USD' ? '$' : 'ل.س';
+    const currencySelect = document.getElementById('invoice-currency');
+    const exchangeRateInput = document.getElementById('invoice-exchange-rate');
+    const currency = currencySelect.value;
+    
+    // إذا كانت العملة هي الليرة السورية، نظهر حقل سعر الصرف
+    // إذا كانت العملة دولار، نخفي حقل سعر الصرف أو نجعله 1
+    if (currency === 'SYP') {
+        // لا نخفي حقل سعر الصرف، نتركه مرئيًا للسماح بتحديد السعر
+        exchangeRateInput.disabled = false;
+        // نقوم بتحديث الأسعار المعروضة في عناصر الفاتورة
+        updateInvoiceItemsPrices();
+    } else {
+        // للدولار، نجعل سعر الصرف 1
+        exchangeRateInput.disabled = false;
+        // نترك سعر الصرف كما هو مدخل من قبل المستخدم
+    }
     
     // تحديث الرمز في الملخص
+    updateInvoiceSummary();
+}
+// دالة لتحويل السعر من العملة الحالية إلى العملة المحددة
+function convertPrice(price, fromCurrency, toCurrency, exchangeRate) {
+    if (fromCurrency === toCurrency) {
+        return price;
+    }
+    
+    if (fromCurrency === 'USD' && toCurrency === 'SYP') {
+        // من دولار إلى ليرة
+        return price * exchangeRate;
+    } else if (fromCurrency === 'SYP' && toCurrency === 'USD') {
+        // من ليرة إلى دولار
+        return price / exchangeRate;
+    }
+    
+    return price;
+}
+
+// دالة لتحديث أسعار العناصر حسب العملة المحددة
+function updateInvoiceItemsPrices() {
+    const currencySelect = document.getElementById('invoice-currency');
+    const exchangeRateInput = document.getElementById('invoice-exchange-rate');
+    const currency = currencySelect.value;
+    const exchangeRate = parseFloat(exchangeRateInput.value) || 1;
+    
+    // تحديث أسعار العناصر المعروضة
+    invoiceItems = invoiceItems.map(item => {
+        // نحتفظ بالسعر الأصلي بالدولار
+            item.original_cost_price = item.cost_price; // السعر الأصلي بالدولار
+        }
+        
+        // تحويل السعر بناءً على العملة المحددة
+        if (currency === 'SYP') {
+            // إذا كانت العملة هي الليرة، نعرض السعر المحوّل
+            item.display_cost_price = item.original_cost_price * exchangeRate;
+        } else {
+            // إذا كانت العملة دولار، نعرض السعر الأصلي
+            item.display_cost_price = item.original_cost_price;
+        }
+        
+        return item;
+    });
+    
+    // إعادة عرض العناصر
+    renderInvoiceItems();
     updateInvoiceSummary();
 }
