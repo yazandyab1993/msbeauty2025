@@ -33,10 +33,48 @@
 
     <?php include __DIR__ . '/partials/discount-banner.php'; ?>
     <?php include __DIR__ . '/partials/section-nav.php'; ?>
-    <?php include __DIR__ . '/partials/top-products-section.php'; ?>
-    <?php include __DIR__ . '/partials/new-products-section.php'; ?>
     <?php include __DIR__ . '/partials/view-toggle.php'; ?>
     <?php include __DIR__ . '/partials/product-sections.php'; ?>
+    
+    <!-- Floating buttons for Latest and Top Products -->
+    <div class="floating-section-buttons">
+        <button class="floating-section-btn top-products" title="المنتجات الأكثر طلبًا">
+            <i class="fas fa-fire"></i>
+        </button>
+        <button class="floating-section-btn new-products" title="أحدث المنتجات">
+            <i class="fas fa-star"></i>
+        </button>
+    </div>
+    
+    <!-- Floating Modal for Top Products -->
+    <div class="floating-modal-overlay" id="top-products-modal">
+        <div class="floating-modal">
+            <div class="floating-modal-header">
+                <h3>🔥 الأكثر طلبًا هذا الأسبوع</h3>
+                <button class="floating-modal-close" onclick="closeTopProductsModal()">&times;</button>
+            </div>
+            <div class="floating-modal-content">
+                <div id="top-products-container-modal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    <div class="text-center text-gray-500 col-span-full py-10">جاري تحميل المنتجات...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Modal for New Products -->
+    <div class="floating-modal-overlay" id="new-products-modal">
+        <div class="floating-modal">
+            <div class="floating-modal-header">
+                <h3>✨ أحدث المنتجات</h3>
+                <button class="floating-modal-close" onclick="closeNewProductsModal()">&times;</button>
+            </div>
+            <div class="floating-modal-content">
+                <div id="new-products-container-modal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    <div class="text-center text-gray-500 col-span-full py-10">جاري تحميل المنتجات...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </main>
 

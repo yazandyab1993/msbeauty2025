@@ -59,7 +59,19 @@ function toggleCurrency() {
     loadTopProducts();
     loadNewProducts();
     
-    // 6. إشعار المستخدم
+    // 6. تحديث محتوى النوافذ العائمة إذا كانت مفتوحة
+    const topModal = document.getElementById('top-products-modal');
+    const newModal = document.getElementById('new-products-modal');
+    
+    if (topModal && topModal.classList.contains('active')) {
+        loadTopProductsModal();
+    }
+    
+    if (newModal && newModal.classList.contains('active')) {
+        loadNewProductsModal();
+    }
+    
+    // 7. إشعار المستخدم
     const currencyName = currentCurrency === 'USD' ? 'الدولار' : 'الليرة السورية';
     showNotification('success', 'تم تغيير العملة', `يتم الآن عرض الأسعار بـ ${currencyName}`);
 }
@@ -1365,12 +1377,197 @@ document.addEventListener('DOMContentLoaded', async function() {
                 document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 const target = this.getAttribute('href');
-                document.querySelector(target).scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+                if (target && document.querySelector(target)) {
+                    document.querySelector(target).scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                } else {
+                    console.warn('Target element not found:', target);
+                }
+            });
+        });
+
+        // Floating buttons for Latest and Top Products
+        document.addEventListener('DOMContentLoaded', function() {
+            // Top Products button
+            const topProductsBtn = document.querySelector('.top-products');
+            if (topProductsBtn) {
+                topProductsBtn.addEventListener('click', function() {
+                    document.getElementById('top-products-modal').classList.add('active');
+                    loadTopProductsModal(); // Load top products in modal
+                });
+            }
+
+            // New Products button
+            const newProductsBtn = document.querySelector('.new-products');
+            if (newProductsBtn) {
+                newProductsBtn.addEventListener('click', function() {
+                    document.getElementById('new-products-modal').classList.add('active');
+                    loadNewProductsModal(); // Load new products in modal
+                });
+            }
+
+            // Close modals when clicking on overlay
+            const modals = document.querySelectorAll('.floating-modal-overlay');
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
                 });
             });
         });
+
+        // Functions to close modals
+        function closeTopProductsModal() {
+            document.getElementById('top-products-modal').classList.remove('active');
+        }
+
+        function closeNewProductsModal() {
+            document.getElementById('new-products-modal').classList.remove('active');
+        }
+
+        // Load top products in modal
+        async function loadTopProductsModal() {
+            const container = document.getElementById('top-products-container-modal');
+            if (!container) return;
+
+            container.innerHTML = '<div class="text-center text-gray-500 col-span-full py-10">جاري تحميل المنتجات...</div>';
+
+            try {
+                const response = await fetch('api.php?action=get_top_products_this_week');
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    container.innerHTML = '';
+                    const products = result.data.slice(0, 12); // Limit to 12 products
+
+                    products.forEach(product => {
+                        const productCard = createProductCard(product, 'modal');
+                        container.appendChild(productCard);
+                    });
+                } else {
+                    container.innerHTML = '<div class="text-center text-gray-500 col-span-full py-10">لا توجد منتجات حالياً</div>';
+                }
+            } catch (error) {
+                console.error('Error loading top products:', error);
+                container.innerHTML = '<div class="text-center text-red-500 col-span-full py-10">حدث خطأ أثناء تحميل المنتجات</div>';
+            }
+        }
+
+        // Load new products in modal
+        async function loadNewProductsModal() {
+            const container = document.getElementById('new-products-container-modal');
+            if (!container) return;
+
+            container.innerHTML = '<div class="text-center text-gray-500 col-span-full py-10">جاري تحميل المنتجات...</div>';
+
+            try {
+                const response = await fetch('api.php?action=get_new_products');
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    container.innerHTML = '';
+                    const products = result.data.slice(0, 12); // Limit to 12 products
+
+                    products.forEach(product => {
+                        const productCard = createProductCard(product, 'modal');
+                        container.appendChild(productCard);
+                    });
+                } else {
+                    container.innerHTML = '<div class="text-center text-gray-500 col-span-full py-10">لا توجد منتجات جديدة حالياً</div>';
+                }
+            } catch (error) {
+                console.error('Error loading new products:', error);
+                container.innerHTML = '<div class="text-center text-red-500 col-span-full py-10">حدث خطأ أثناء تحميل المنتجات</div>';
+            }
+        }
+
+        // Create product card for modal
+        function createProductCard(product, context = 'normal') {
+            const card = document.createElement('div');
+            card.className = 'product-card-modern bg-white rounded-2xl md:rounded-3xl shadow-lg overflow-hidden group relative';
+            
+            const is_new_product = product.is_new == 1 && (!product.new_until || new Date(product.new_until) >= new Date());
+            
+            // Determine price and discount
+            let price = parseFloat(product.price);
+            let has_discount = false;
+            let discounted_price = price;
+            
+            if (discountType === 'global' && discountValue > 0) {
+                has_discount = true;
+                discounted_price = price - (price * discountValue / 100);
+            }
+            
+            if (has_discount && discountTargetId && discountType === 'parent_section') {
+                // Additional logic for parent section discount if needed
+            }
+            
+            if (has_discount && discountTargetId && discountType === 'category') {
+                if (product.category_id == discountTargetId) {
+                    has_discount = true;
+                    discounted_price = price - (price * discountValue / 100);
+                }
+            }
+
+            card.innerHTML = `
+                <div class="relative overflow-hidden">
+                    ${is_new_product ? 
+                        `<div class="new-product-badge absolute top-2 left-2 z-10 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                            <i class="fas fa-star new-product-star"></i>
+                            <span>جديد</span>
+                        </div>` : ''}
+                    <img src="${product.image}" alt="${escapeHtml(product.name)}" class="w-full h-36 md:h-48 object-contain bg-white p-2 group-hover:scale-105 transition-transform duration-500">
+                    ${has_discount ? 
+                        `<div class="badge-discount absolute top-2 right-2 md:top-3 md:right-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs md:text-xs font-bold shadow-lg">
+                            -${discountValue}%
+                        </div>` : ''}
+                    ${product.display_stock > 0 && product.display_stock < 10 ? 
+                        `<div class="absolute top-2 left-2 md:top-3 md:left-3 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs md:text-xs font-bold shadow-lg">
+                            <i class="fas fa-fire mr-1"></i>كمية محدودة
+                        </div>` : ''}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+                <div class="p-3 md:p-4 relative z-10">
+                    <h4 class="font-bold text-sm md:text-base mb-1 md:mb-2 text-gray-800 truncate group-hover:text-pink-600 transition">${escapeHtml(product.name)}</h4>
+                    <p class="text-gray-600 text-xs md:text-sm mb-2 md:mb-3 h-10 overflow-hidden leading-tight">${escapeHtml(product.description)}</p>
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="flex flex-col">
+                            <span class="dynamic-price text-pink-600 font-bold text-lg md:text-xl" 
+                                  data-usd="${discounted_price}">
+                                ${formatPrice(discounted_price)}
+                            </span>
+                            ${has_discount ? 
+                                `<span class="dynamic-price-old text-gray-400 line-through text-xs md:text-sm" 
+                                      data-usd="${price}">
+                                    ${formatPrice(price)}
+                                </span>` : ''}
+                        </div>
+                        
+                        ${product.display_stock > 0 ? 
+                            `<div class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                                <i class="fas fa-check-circle"></i> متوفر
+                            </div>` : 
+                            `<div class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded-full">
+                                <i class="fas fa-times-circle"></i> نفذت الكمية
+                            </div>`}
+                    </div>
+                    <button
+                        onclick="handleAddToCart(JSON.parse('${JSON.stringify(product).replace(/"/g, '&quot;')}'))"
+                        class="w-full py-2 md:py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl md:rounded-2xl font-bold shadow-lg transition-all transform hover:scale-105 flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm
+                        ${product.display_stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${product.display_stock <= 0 ? 'disabled' : ''}>
+                        <i class="fas fa-cart-plus text-xs md:text-sm"></i>
+                        <span class="hidden sm:inline">إضافة للسلة</span>
+                        <span class="sm:hidden">أضف</span>
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
 
         async function loadNewProducts() {
     const container = document.getElementById('new-products-container');
