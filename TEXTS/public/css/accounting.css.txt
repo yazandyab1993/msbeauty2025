@@ -1,0 +1,32 @@
+     .toggle-switch {
+            transition: all 0.3s ease;
+        }
+        .mode-card {
+            transition: all 0.3s ease;
+        }
+        .mode-card:hover {
+            transform: translateY(-4px);
+        }
+        .invoice-item {
+            transition: all 0.2s ease;
+        }
+        .invoice-item:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.05), rgba(139, 92, 246, 0.05));
+        }
+
+        .invoice-item {
+  display: flex;
+  flex-wrap: nowrap; /* منع الانتقال لأسطر جديدة */
+  overflow-x: auto;  /* تمكين التمرير الأفقي إذا لزم */
+  -webkit-overflow-scrolling: touch; /* سلاسة التمرير على iOS */
+  scrollbar-width: thin; /* Firefox */
+}
+
+.invoice-item::-webkit-scrollbar {
+  height: 6px;
+}
+
+.invoice-item::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 3px;
+}
